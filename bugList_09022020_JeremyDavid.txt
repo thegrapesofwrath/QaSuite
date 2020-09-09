@@ -1,0 +1,13 @@
+Bugs:
+Code changes without the output being regenerated in ipynb
+Diff with previous version
+Rerun and check code with pandoc filter in markdown files
+
+Inconsistencies with Solved and Unsolved directory
+
+Inconsistencies with references to codeblock being propagated across the project
+
+
+Diff current and previous notebooks to get which cells changed and verify that the changes are propagated between solved and unsolved
+
+Check the slides have been adjusted if a change to the lesson plan.
