@@ -1,8 +1,32 @@
-from NotebookReport import NotebookReport
+#%%
+import NotebookReport
+import click
 
+#%%
+@click.group()
+def commandLineInterface():
+    '''QA Tools
+    This is the QA Suite of Tools.
 
+    It contains:
 
-
-
-if __name__ == "__main__":
+    Notebook Report       - Runs all jupyter notebooks and checks for errors.
+    Markdown Link Checker - Checks that all markdown links are valid.
+    '''
     pass
+
+@click.command()
+@click.option('--directory', default = './', help='The directory to run the notebook report. It will recurse and check all jupyter notebooks in subdirectories.')
+def runNotebookReport(directory):
+    '''Notebook Report.
+
+The Notebook Report will recurse a directory and check all .ipynb files using the nbconvert ExecutionPreprocessor. 
+It will save the output to the same file name and will list all failing notebooks as well as their cells that failed with the associated stack trace.
+    '''
+    NotebookReport.NotebookReport(directory=directory)
+
+commandLineInterface.add_command(runNotebookReport)
+
+#%%
+if __name__ == "__main__":
+    commandLineInterface()

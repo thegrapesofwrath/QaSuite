@@ -1,13 +1,16 @@
+'''Notebook Report.
+
+The Notebook Report will recurse a directory and check all .ipynb files using the nbconvert ExecutionPreprocessor. 
+It will save the output to the same file name and will list all failing notebooks as well as their cells that failed with the associated stack trace.
+'''
 #%%
 from pathlib import Path
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors import CellExecutionError
-# import sys,traceback
 import subprocess
 #%%
-testDirectory = "/Users/shartley/Documents/qaSuite/1-Recommended"
-
+# testDirectory = "/Users/shartley/Documents/qaSuite/1-Recommended"
 
 #%%
 class NotebookReport():
@@ -66,5 +69,5 @@ class NotebookReport():
         print("Notebook Report Finished.\n")
 
 #%%
-notebookReport = NotebookReport(testDirectory)
-
+# notebookReport = NotebookReport(testDirectory)
+#%%
