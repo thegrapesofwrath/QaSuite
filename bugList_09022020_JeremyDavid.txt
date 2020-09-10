@@ -1,5 +1,18 @@
 Bugs:
 Code changes without the output being regenerated in ipynb
+
+Diff the solved and unsolved notebooks checking the text blocks are the same. Code was not matching, the text cells were not matching and output was different.
+There will be slight differnces in the comments between solved and unsolved for example (Your code here)
+Flag output cells are different between Solved and Unsolved.
+
+jsonDiff
+
+
+Check markdown code cells in notebooks
+Spellcheck markdown text blocks in notebooks
+Formatting linter like pylint,pycodeStyle,esLint,pythonBlack (it maynot be flexible enough for some of our datastructures (last challenge for module : dictionaries or list of dictionaries))
+
+
 Diff with previous version
 Rerun and check code with pandoc filter in markdown files
 

@@ -15,8 +15,9 @@ import subprocess
 #%%
 class NotebookReport():
 
-    def __init__(self,directory='./') -> None:
+    def __init__(self,directory, overwrite) -> None:
         self.notebooks: list = []
+        self.overwrite = overwrite
         self.rootDirectory = Path(directory)
         self.sucessfulNotebooks: list = {}
         self.failedNotebooks: list = {}
@@ -64,8 +65,9 @@ class NotebookReport():
                 self.failedNotebooks[str(notebook)] = f"FAILED: {e} \n\n===\n\n"
                 print(errorMessage)
             finally:
-                with open(str(notebook), mode='w', encoding='utf-8') as f:
-                    nbformat.write(notebookParsed, f)
+                if self.overwrite == True:
+                    with open(str(notebook), mode='w', encoding='utf-8') as f:
+                        nbformat.write(notebookParsed, f)
         print("Notebook Report Finished.\n")
 
 #%%
