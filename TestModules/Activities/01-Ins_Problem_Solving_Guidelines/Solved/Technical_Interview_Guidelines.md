@@ -1,5 +1,6 @@
 # How to Interview Well
-
+[Reading CSV](Activities/03-Ins_Reading_CSVs/Solved/reading_csvs.ipynb)
+[Reading CSV](../03-Ins_Reading_CSVs/Solved/reading_csvs.ipynb)
 The most important thing for you to prove in a technical interview is that you are a **strong problem-solver**.
 
 Your knowledge of programming obviously plays a crucial role in your ability to solve problems, but your ability to articulate your thought process is equally important. Following the below guidelines will help you demonstrate that you can both **think through hard problems** and **effectively communicate your thought process**.

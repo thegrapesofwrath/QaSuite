@@ -1,5 +1,6 @@
 # Module 3: Virtual Class (Recommended) Lesson Plan (2 hours)
-
+<img src="noImage">
+<img src="https://www.crummy.com/software/BeautifulSoup/bs4/doc/_images/6.1.jpg">
 ## Instructor Preparation
 
 ### What Are Virtual Class (Recommended) Sessions?
