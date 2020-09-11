@@ -8,16 +8,16 @@ from pathlib import Path
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors import CellExecutionError
-import subprocess
 #%%
-# testDirectory = "/Users/shartley/Documents/qaSuite/1-Recommended"
+# testDirectory = "/Users/shartley/Documents/qaSuite/TestModules"
 
 #%%
 class NotebookReport():
 
-    def __init__(self,directory, overwrite) -> None:
+    def __init__(self,directory, overwrite,kernel) -> None:
         self.notebooks: list = []
         self.overwrite = overwrite
+        self.kernel = kernel
         self.rootDirectory = Path(directory)
         self.sucessfulNotebooks: list = {}
         self.failedNotebooks: list = {}
@@ -55,7 +55,7 @@ class NotebookReport():
 
             notebookParsed: object = nbformat.reads(noteText, as_version=4)
 
-            executionPreprocessor: object = ExecutePreprocessor(timeout=600, kernel_name='python3',allow_errors=False)
+            executionPreprocessor: object = ExecutePreprocessor(timeout=600, kernel_name=self.kernel,allow_errors=False)
 
             try:
                 executionPreprocessor.preprocess(notebookParsed, {'metadata': {'path': str(notebook.parent)}})

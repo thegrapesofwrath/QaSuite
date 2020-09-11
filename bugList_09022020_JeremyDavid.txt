@@ -7,6 +7,8 @@ Flag output cells are different between Solved and Unsolved.
 
 jsonDiff
 
+Markdown link reporter had a bug where the links were not being checked for case sensitivity and would cause issues with github.
+
 
 Check markdown code cells in notebooks
 Spellcheck markdown text blocks in notebooks
