@@ -18,7 +18,7 @@ def commandLineInterface():
 
 @click.command()
 @click.option('--directory', default = './', help='The directory to run the notebook report. It will recurse and check all jupyter notebooks in subdirectories.')
-@click.option('--kernel', default = 'python3', help='This is the kernel to use when parsing the notebook. Default: "python"')
+@click.option('--kernel', default = 'python3', help='This is the kernel to use when parsing the notebook. Default: "python3"')
 @click.option('--overwrite', default = False, help='Enabling this will overwrite the notebook with the output of the report.')
 def nbReport(directory,overwrite,kernel):
     '''Notebook Report.
