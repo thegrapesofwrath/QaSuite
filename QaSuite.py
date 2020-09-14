@@ -1,6 +1,8 @@
 #%%
-import NotebookReport
-import MarkdownLinkReport
+# import NotebookReport
+from Reports.NotebookReport import NotebookReport
+# import MarkdownLinkReport
+from Reports.MarkdownLinkReport import MarkdownLinkReport
 import click
 
 #%%
@@ -26,7 +28,7 @@ def nbReport(directory,overwrite,kernel):
     The Notebook Report will recurse a directory and check all .ipynb files using the nbconvert ExecutionPreprocessor. 
     It will save the output to the same file name and will list all failing notebooks as well as their cells that failed with the associated stack trace.
     '''
-    NotebookReport.NotebookReport(directory=directory,overwrite=overwrite,kernel=kernel)
+    NotebookReport(directory=directory,overwrite=overwrite,kernel=kernel)
 
 commandLineInterface.add_command(nbReport)
 
@@ -39,7 +41,7 @@ def mdLinkCheck(directory):
     or if they return a valid status code from a get request. It will check both markdown
     links and html img tag links.
     '''
-    MarkdownLinkReport.MarkdownLinkReport(directory=directory)
+    MarkdownLinkReport(directory=directory)
 
 commandLineInterface.add_command(mdLinkCheck)
 

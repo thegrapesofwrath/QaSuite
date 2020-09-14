@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import requests
 from bs4 import BeautifulSoup
+from Base.ErrorBase import ErrorBase
 #%%
 # testDirectory = "/Users/shartley/Documents/qaSuite/TestModules"
 #%%
@@ -58,8 +59,9 @@ class MarkdownLinkReport():
             try:
                 _fileText: object = open(filePath,'r')
                 fileText: list = _fileText.readlines()
-                self.checkText(file,fileText,lineNumber)
-                print("Markdown Link Report Finished.\n")
+                results: ErrorBase = self.checkText(file,fileText,lineNumber)
+                if results.isError:
+                    print(f"Markdown Link Reporter failed for {results.fileObject} at {results.lineNumber}: {results.exceptionObject}")
             except IsADirectoryError as e:
                 _potentialFileName: list = file.name.split('.')
                 potentialFileName: str = _potentialFileName[0]
@@ -91,24 +93,29 @@ class MarkdownLinkReport():
         except Exception:
             pass
     
-    def checkText(self,file: object, fileText: list, lineNumber: int) -> None:
-        for line in fileText:    
-            if self.markdownLinkMatch.search(line):
-                link: str = self.getLink(line,self.markdownLinkMatch)
-                if self.validateFileSystem(link):
-                    self.sucessfulLinks[f"{file.name} - {lineNumber}"] = f"{link}"
-                else:
-                    self.failedLinks[f"{file.parent}/{file.name} - {lineNumber}"] = f"{link}"
-            if self.htmlLinkMatch.match(line):
-                link: str = self.getLink(line,self.htmlLinkMatch)
-                tag: object = BeautifulSoup(f"<{link}>",'html.parser')
-                imgTag: object = tag.find('img')
-                srcLink: str = imgTag.get("src")
-                if self.validateURLRequest(srcLink):
-                    self.sucessfulLinks[f"{file.name} - {lineNumber}"] = f"{link}"
-                else:
-                    self.failedLinks[f"{file.parent}/{file.name} - {lineNumber}"] = f"{link}"
-            lineNumber += 1
+    def checkText(self,file: object, fileText: list, lineNumber: int) -> ErrorBase:
+        try:
+            for line in fileText:    
+                if self.markdownLinkMatch.search(line):
+                    link: str = self.getLink(line,self.markdownLinkMatch)
+                    if self.validateFileSystem(link):
+                        self.sucessfulLinks[f"{file.name} - {lineNumber}"] = f"{link}"
+                    else:
+                        self.failedLinks[f"{file.parent}/{file.name} - {lineNumber}"] = f"{link}"
+                if self.htmlLinkMatch.match(line):
+                    link: str = self.getLink(line,self.htmlLinkMatch)
+                    tag: object = BeautifulSoup(f"<{link}>",'html.parser')
+                    imgTag: object = tag.find('img')
+                    srcLink: str = imgTag.get("src")
+                    if self.validateURLRequest(srcLink):
+                        self.sucessfulLinks[f"{file.name} - {lineNumber}"] = f"{link}"
+                    else:
+                        self.failedLinks[f"{file.parent}/{file.name} - {lineNumber}"] = f"{link}"
+                lineNumber += 1
+            return ErrorBase(isError=False,fileObject=file,lineNumber=lineNumber,exceptionObject=None)
+        except Exception as e:
+            return ErrorBase(isError=True,fileObject=file,lineNumber=lineNumber,exceptionObject=e)
+
 
 
 
