@@ -55,32 +55,16 @@ class MarkdownLinkReport():
             filePath: object = file.resolve()
             self.parentDirectory = file.parent
 
-            _fileText: object = open(filePath,'r')
-            fileText: list = _fileText.readlines()
-
-            for line in fileText:
-                        
-                if self.markdownLinkMatch.search(line):
-                    link: str = self.getLink(line,self.markdownLinkMatch)
-                    if self.validateFileSystem(link):
-                        self.sucessfulLinks[f"{file.name} - {lineNumber}"] = f"{link}"
-                    else:
-                        self.failedLinks[f"{file.parent}/{file.name} - {lineNumber}"] = f"{link}"
-
-                if self.htmlLinkMatch.match(line):
-                    link: str = self.getLink(line,self.htmlLinkMatch)
-                    tag: object = BeautifulSoup(f"<{link}>",'html.parser')
-                    imgTag: object = tag.find('img')
-                    srcLink: str = imgTag.get("src")
-                    if self.validateURLRequest(srcLink):
-                        self.sucessfulLinks[f"{file.name} - {lineNumber}"] = f"{link}"
-                    else:
-                        self.failedLinks[f"{file.parent}/{file.name} - {lineNumber}"] = f"{link}"
-
-
-                lineNumber += 1
-
-        print("Markdown Link Report Finished.\n")
+            try:
+                _fileText: object = open(filePath,'r')
+                fileText: list = _fileText.readlines()
+                self.checkText(file,fileText,lineNumber)
+                print("Markdown Link Report Finished.\n")
+            except IsADirectoryError as e:
+                _potentialFileName: list = file.name.split('.')
+                potentialFileName: str = _potentialFileName[0]
+                self.failedLinks[f"{file.parent}/{file.name}"] = f"Is a directory and not a file. Should it be named {potentialFileName}? Files in this directory have not been checked. Please rerun the report after fixing the issue."
+                print(f"{file.name} a directory and not a file. Should it be named {potentialFileName}? Files in this directory have not been checked. Please rerun the report after fixing the issue.")
     
     def getLink(self,line: str, matchingRegex: object) -> str:
         link: object = matchingRegex.search(line)
@@ -106,6 +90,26 @@ class MarkdownLinkReport():
                 return False
         except Exception:
             pass
+    
+    def checkText(self,file: object, fileText: list, lineNumber: int) -> None:
+        for line in fileText:    
+            if self.markdownLinkMatch.search(line):
+                link: str = self.getLink(line,self.markdownLinkMatch)
+                if self.validateFileSystem(link):
+                    self.sucessfulLinks[f"{file.name} - {lineNumber}"] = f"{link}"
+                else:
+                    self.failedLinks[f"{file.parent}/{file.name} - {lineNumber}"] = f"{link}"
+            if self.htmlLinkMatch.match(line):
+                link: str = self.getLink(line,self.htmlLinkMatch)
+                tag: object = BeautifulSoup(f"<{link}>",'html.parser')
+                imgTag: object = tag.find('img')
+                srcLink: str = imgTag.get("src")
+                if self.validateURLRequest(srcLink):
+                    self.sucessfulLinks[f"{file.name} - {lineNumber}"] = f"{link}"
+                else:
+                    self.failedLinks[f"{file.parent}/{file.name} - {lineNumber}"] = f"{link}"
+            lineNumber += 1
+
 
 
 #%%
