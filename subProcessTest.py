@@ -27,3 +27,8 @@ stdOut.splitlines()
 # %%
 stdOut.split('\\n')
 # %%
+a = "a"
+b = "b"
+listInts = [0,1,2]
+someList = [a] + listInts + [b]
+# %%
