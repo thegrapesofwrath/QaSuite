@@ -6,8 +6,11 @@ This is the base report class that reports will inherit from.
 from pathlib import Path
 import subprocess
 import requests
+import os
+import sys
 
 # from ErrorBase import ErrorBase
+from Reports.ErrorBase import ErrorBase
 
 
 #%%
@@ -20,10 +23,10 @@ class ReportBase(object):
         self.rootDirectory = Path(directory)
         self.sucessfulInstances: dict = {}
         self.failedInstances: dict = {}
+        self.reportOperationErrors: list = []
         self.lineNumber = 0
         self.cellNumber = 0
         self.tempFileName = 'deleteme'
-
     
     def __repr__(self) -> str:
         report: str = ""
@@ -42,7 +45,14 @@ class ReportBase(object):
         
     
     def populateFileList(self) -> list:
-        self.fileList = list(self.rootDirectory.rglob(f"**/*.{self.fileType}"))
+        try:
+            if self.rootDirectory.exists():
+                self.fileList = list(self.rootDirectory.rglob(f"**/*.{self.fileType}"))
+            else:
+                raise FileNotFoundError
+        except FileNotFoundError:
+            print(f"The directory: {self.rootDirectory} does not exist.")
+            sys.exit(1)
     
     def run(self):
         print(f"Starting {self.reportName} Report:")
@@ -52,12 +62,26 @@ class ReportBase(object):
     
     def runReport(self):
         pass
-
-    def writeTempFile(self,fileType: str) -> str:
-        pass
-
-    def deleteTempFile(self,fileName: str) -> bool:
-        pass
+    
+    def writeTempFile(self,fileName: str = None,cell: object = None, preProcessingCommands: str = None) -> None:
+        if fileName == None:
+            fileName = self.tempFileName
+        try:
+            tempFile = open(file=fileName, mode="w")
+            if preProcessingCommands != None:
+                tempFile.write(preProcessingCommands)
+            tempFile.write(cell.source)
+            tempFile.close()
+        except Exception as e:
+            self.reportOperationErrors.append(ErrorBase(isError=True,fileObject = Path(fileName),exceptionObject= e))
+    
+    def deleteTempFile(self, fileName: str = None) -> None:
+        if fileName == None:
+            fileName = self.tempFileName
+        try:
+            os.remove(fileName)
+        except Exception as e:
+            self.reportOperationErrors.append(ErrorBase(isError=True,fileObject = Path(fileName),exceptionObject= e))
 
     def runSubprocess(self,commandName: str, commandArgs: list, fileName: str) -> subprocess.CompletedProcess:
         commandToRun = [commandName] + commandArgs + [fileName]
@@ -76,7 +100,7 @@ class ReportBase(object):
             else:    
                 fileText: str = _fileText.read()
             return fileText
-        except IsADirectoryError as e:
+        except IsADirectoryError:
             _potentialFileName: list = file.name.split('.')
             potentialFileName: str = _potentialFileName[0]
             self.failedInstances[f"{file.parent}/{file.name}"] = f"Is a directory and not a file. Should it be named {potentialFileName}? Files in this directory have not been checked. Please rerun the report after fixing the issue."
@@ -100,5 +124,9 @@ class ReportBase(object):
                 return False
         except Exception:
             pass
+    
+    def checkForError(self, potentialError: ErrorBase):
+        if potentialError.isError:
+            self.reportOperationErrors.append(potentialError)
 
 # %%

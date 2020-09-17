@@ -10,7 +10,7 @@ setup(
         'requests',
         'click',
     ],
-    py_modules=['QaSuite','NotebookReport','MarkdownLinkReport'],
+    py_modules=['QaSuite','NotebookReport','MarkdownLinkReport','SpellCheckNotebookReport','ReportBase','ErrorBase'],
     entry_points='''
         [console_scripts]
         qaSuite=QaSuite:commandLineInterface
