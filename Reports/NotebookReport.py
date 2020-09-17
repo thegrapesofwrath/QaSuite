@@ -22,7 +22,7 @@ class NotebookReport(ReportBase):
         super(NotebookReport, self).__init__(directory=directory)
         self.overwrite = overwrite
         self.kernel = 'python3'
-        self.reportName = "Notebook Report"
+        self.reportName = "Notebook"
         self.fileType = "ipynb"
         self.run()
 

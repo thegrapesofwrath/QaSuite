@@ -24,7 +24,7 @@ class SpellCheckNotebookReport(ReportBase):
     # def __init__(self,directory='./',cSpellConfig = './cSpell.json') -> None:
     def __init__(self,directory,cspellconfig) -> None:
         super(SpellCheckNotebookReport, self).__init__(directory=directory)
-        self.reportName = "Spellcheck Notebook Report"
+        self.reportName = "Spellcheck Notebook"
         self.fileType = "ipynb"
         self.cSpellConfig = cspellconfig
         self.run()
