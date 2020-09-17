@@ -1,8 +1,7 @@
 #%%
-# import NotebookReport
 from Reports.NotebookReport import NotebookReport
-# import MarkdownLinkReport
 from Reports.MarkdownLinkReport import MarkdownLinkReport
+from Reports.SpellCheckNotebookReport import SpellCheckNotebookReport
 import click
 
 #%%
@@ -15,20 +14,20 @@ def commandLineInterface():
 
     Notebook Report       - Runs all jupyter notebooks and checks for errors.
     Markdown Link Checker - Checks that all markdown links are valid.
+    Notebook Spell Checker - Checks the spelling in all markdown and code cells for a jupyter notebook.
     '''
     pass
 
 @click.command()
 @click.option('--directory', default = './', help='The directory to run the notebook report. It will recurse and check all jupyter notebooks in subdirectories.')
-@click.option('--kernel', default = 'python3', help='This is the kernel to use when parsing the notebook. Default: "python3"')
 @click.option('--overwrite', default = False, help='Enabling this will overwrite the notebook with the output of the report.')
-def nbReport(directory,overwrite,kernel):
+def nbReport(directory,overwrite):
     '''Notebook Report.
 
     The Notebook Report will recurse a directory and check all .ipynb files using the nbconvert ExecutionPreprocessor. 
     It will save the output to the same file name and will list all failing notebooks as well as their cells that failed with the associated stack trace.
     '''
-    NotebookReport(directory=directory,overwrite=overwrite,kernel=kernel)
+    NotebookReport(directory=directory,overwrite=overwrite)
 
 commandLineInterface.add_command(nbReport)
 
@@ -44,6 +43,40 @@ def mdLinkCheck(directory):
     MarkdownLinkReport(directory=directory)
 
 commandLineInterface.add_command(mdLinkCheck)
+
+@click.command()
+@click.option('--directory', default = './', help='The directory to run the spell checker. It will recurse and check all .ipynb files in subdirectories.')
+@click.option('--cSpellConfig', default = './cSpell.json', help='''
+    Add configuration options to cSpell in this file. The list of ignore words will be included in this file.\n
+    Default: 'cSpell.json'\n
+    For a complete list of options, please go to:\n
+    https://www.npmjs.com/package/cspell#cspelljson
+
+
+    Example cSpell.json:
+
+    {\n
+    "ignoreWords": [\n
+        "dtypes",\n
+        "iloc",\n
+        "numpy",\n
+        "Dataframe"\n
+        ]\n
+    }
+
+    The default config file is expected to be 'cSpell.json'. You may however pass in another config file as long as it's valid json and conforms with the cSpell config json format.
+
+''')
+def nbSpellCheck(directory,cSpellConfig):
+    '''Jupyter Notebook Spell Checker.
+
+    This module parses all notebooks and runs cspell on the code and
+    markdown cells. Any misspelled words are added to a set of words.
+    This set of words is printed at the very end. It is recommended to
+    run this code per unit and update the unit-level spelling dictionary.
+    '''
+    SpellCheckNotebookReport(directory=directory,cSpellConfig=cSpellConfig)
+commandLineInterface.add_command(nbSpellCheck)
 
 #%%
 if __name__ == "__main__":
