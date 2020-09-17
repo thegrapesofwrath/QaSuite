@@ -8,6 +8,7 @@ run this code per unit and update the unit-level spelling dictionary.
 #%%
 import subprocess
 import nbformat
+from nbformat.reader import NotJSONError
 import progressbar
 from pathlib import Path
 # from ReportBase import ReportBase
@@ -36,13 +37,16 @@ class SpellCheckNotebookReport(ReportBase):
         for file in self.fileList:
             self.cellNumber = 0
             noteText: str = self.readFile(file)
-            notebookParsed: object = nbformat.reads(noteText, as_version=4)
-            for cell in notebookParsed.cells:
-                if cell.cell_type == 'markdown' or cell.cell_type == 'code':
-                    spellingErrors = self.checkSpelling(cell)
-                    if len(spellingErrors) > 0:
-                        self.failedInstances[f"{file} - {self.cellNumber}"] = spellingErrors
-                self.cellNumber += 1
+            try:
+                notebookParsed: object = nbformat.reads(noteText, as_version=4)
+                for cell in notebookParsed.cells:
+                    if cell.cell_type == 'markdown' or cell.cell_type == 'code':
+                        spellingErrors = self.checkSpelling(cell)
+                        if len(spellingErrors) > 0:
+                            self.failedInstances[f"{file} - {self.cellNumber}"] = spellingErrors
+                    self.cellNumber += 1
+            except NotJSONError:
+                print(f'{file} is not in valid json format and therefore cannot be parsed as an .ipynb file. Even if it is an empty file it should containt the minimum metadata to be considered a jupyter notebook. Try saving it with an empty cell in vsCode.')
             bar.update(i)
             i += 1
         print("Spellcheck Notebook Report Finished.\n")

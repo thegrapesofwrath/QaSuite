@@ -1,2 +1,0 @@
-# Select the first column of the DataFrame
-people_csv.iloc[:,0].head()
