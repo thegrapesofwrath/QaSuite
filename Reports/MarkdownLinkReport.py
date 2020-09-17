@@ -7,6 +7,7 @@ links and html img tag links.
 #%%
 import re
 from bs4 import BeautifulSoup
+import progressbar
 # from ReportBase import ReportBase
 # from ErrorBase import ErrorBase
 
@@ -28,13 +29,16 @@ class MarkdownLinkReport(ReportBase):
 
     def runReport(self) -> None:
         self.lineNumber: int = 0
+        bar = progressbar.ProgressBar(max_value=len(self.fileList))
+        i = 0
         for file in self.fileList:
             self.lineNumber = 0
-            print('.')
             fileText: list = self.readFile(file,returnList=True)
             results: ErrorBase = self.checkText(file,fileText,self.lineNumber)
             if results.isError:
                 print(f"Markdown Link Reporter failed for {results.fileObject} at {results.lineNumber}: {results.exceptionObject}")
+            bar.update(i)
+            i += 1
         print("Markdown Link Check Finished.\n")
 
     def getLink(self,line: str, matchingRegex: object) -> str:

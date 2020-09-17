@@ -9,6 +9,7 @@ setup(
         'nbconvert',
         'requests',
         'click',
+        'progressbar2'
     ],
     py_modules=['QaSuite','NotebookReport','MarkdownLinkReport','SpellCheckNotebookReport','ReportBase','ErrorBase'],
     entry_points='''

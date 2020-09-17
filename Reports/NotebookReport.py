@@ -6,6 +6,7 @@ It will save the output to the same file name and will list all failing notebook
 #%%
 # from pathlib import Path
 import nbformat
+import progressbar
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert.preprocessors import CellExecutionError
 
@@ -26,13 +27,12 @@ class NotebookReport(ReportBase):
         self.run()
 
     def runReport(self) -> None:
+        i = 0
+        bar = progressbar.ProgressBar(max_value=len(self.fileList))
         for file in self.fileList:
-            print('.')
-
             noteText: str = self.readFile(file)
             notebookParsed: object = nbformat.reads(noteText, as_version=4)
             executionPreprocessor: object = ExecutePreprocessor(timeout=600, kernel_name=self.kernel,allow_errors=False)
-
             try:
                 executionPreprocessor.preprocess(notebookParsed, {'metadata': {'path': str(file.parent)}})
                 self.sucessfulInstances[str(file)] = 'PASS'
@@ -44,6 +44,8 @@ class NotebookReport(ReportBase):
                 if self.overwrite == True:
                     with open(str(file), mode='w', encoding='utf-8') as f:
                         nbformat.write(notebookParsed, f)
+            bar.update(i)
+            i += 1
         print("Notebook Report Finished.\n")
 
 #%%

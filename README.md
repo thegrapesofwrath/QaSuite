@@ -11,7 +11,7 @@ This is the QA Suite of Tools.
 ## Installation
 
 ```shell
-pip install -e .
+pip install .
 ```
 
 ## qaSuite Help

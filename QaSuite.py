@@ -67,7 +67,7 @@ commandLineInterface.add_command(mdLinkCheck)
     The default config file is expected to be 'cSpell.json'. You may however pass in another config file as long as it's valid json and conforms with the cSpell config json format.
 
 ''')
-def nbSpellCheck(directory,cSpellConfig):
+def nbSpellCheck(directory,cspellconfig):
     '''Jupyter Notebook Spell Checker.
 
     This module parses all notebooks and runs cspell on the code and
@@ -75,7 +75,7 @@ def nbSpellCheck(directory,cSpellConfig):
     This set of words is printed at the very end. It is recommended to
     run this code per unit and update the unit-level spelling dictionary.
     '''
-    SpellCheckNotebookReport(directory=directory,cSpellConfig=cSpellConfig)
+    SpellCheckNotebookReport(directory=directory,cspellconfig=cspellconfig)
 commandLineInterface.add_command(nbSpellCheck)
 
 #%%

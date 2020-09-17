@@ -8,6 +8,7 @@ run this code per unit and update the unit-level spelling dictionary.
 #%%
 import subprocess
 import nbformat
+import progressbar
 from pathlib import Path
 # from ReportBase import ReportBase
 from Reports.ReportBase import ReportBase
@@ -21,18 +22,19 @@ from Reports.ReportBase import ReportBase
 class SpellCheckNotebookReport(ReportBase):
 
     # def __init__(self,directory='./',cSpellConfig = './cSpell.json') -> None:
-    def __init__(self,directory,cSpellConfig) -> None:
+    def __init__(self,directory,cspellconfig) -> None:
         super(SpellCheckNotebookReport, self).__init__(directory=directory)
         self.reportName = "Spellcheck Notebook Report"
         self.fileType = "ipynb"
-        self.cSpellConfig = cSpellConfig
+        self.cSpellConfig = cspellconfig
         self.run()
 
     def runReport(self) -> None:
         self.cellNumber: int = 0
+        i = 0
+        bar = progressbar.ProgressBar(max_value=len(self.fileList))
         for file in self.fileList:
             self.cellNumber = 0
-            print('.')
             noteText: str = self.readFile(file)
             notebookParsed: object = nbformat.reads(noteText, as_version=4)
             for cell in notebookParsed.cells:
@@ -41,6 +43,8 @@ class SpellCheckNotebookReport(ReportBase):
                     if len(spellingErrors) > 0:
                         self.failedInstances[f"{file} - {self.cellNumber}"] = spellingErrors
                 self.cellNumber += 1
+            bar.update(i)
+            i += 1
         print("Spellcheck Notebook Report Finished.\n")
     
     def checkSpelling(self,cell: object) -> list:
