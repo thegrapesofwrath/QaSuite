@@ -29,8 +29,8 @@ class MarkdownLinkReport(ReportBase):
 
     def runReport(self) -> None:
         self.lineNumber: int = 0
-        bar = progressbar.ProgressBar(max_value=len(self.fileList))
-        i = 0
+        i: int = 0
+        bar: progressbar.ProgressBar = progressbar.ProgressBar(max_value=len(self.fileList))
         for file in self.fileList:
             self.lineNumber = 0
             fileText: list = self.readFile(file,returnList=True)

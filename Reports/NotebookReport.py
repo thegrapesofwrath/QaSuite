@@ -27,8 +27,8 @@ class NotebookReport(ReportBase):
         self.run()
 
     def runReport(self) -> None:
-        i = 0
-        bar = progressbar.ProgressBar(max_value=len(self.fileList))
+        i: int = 0
+        bar: progressbar.ProgressBar = progressbar.ProgressBar(max_value=len(self.fileList))
         for file in self.fileList:
             noteText: str = self.readFile(file)
             notebookParsed: object = nbformat.reads(noteText, as_version=4)

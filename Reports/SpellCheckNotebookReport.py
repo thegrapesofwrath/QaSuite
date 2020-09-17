@@ -31,8 +31,8 @@ class SpellCheckNotebookReport(ReportBase):
 
     def runReport(self) -> None:
         self.cellNumber: int = 0
-        i = 0
-        bar = progressbar.ProgressBar(max_value=len(self.fileList))
+        i: int = 0
+        bar: progressbar.ProgressBar = progressbar.ProgressBar(max_value=len(self.fileList))
         for file in self.fileList:
             self.cellNumber = 0
             noteText: str = self.readFile(file)
