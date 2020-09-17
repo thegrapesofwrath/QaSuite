@@ -14,6 +14,7 @@ def commandLineInterface():
 
     Notebook Report       - Runs all jupyter notebooks and checks for errors.
     Markdown Link Checker - Checks that all markdown links are valid.
+    Notebook Spell Checker - Checks the spelling in all markdown and code cells for a jupyter notebook.
     '''
     pass
 
