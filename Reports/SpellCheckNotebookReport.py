@@ -59,7 +59,6 @@ class SpellCheckNotebookReport(ReportBase):
                 print("The notebook was unable to be parsed. It is not in valid json format or it is empty.")
             fileCount += 1
             processCount[0] = fileCount
-            processCount[2] -= 1
             cellProcessBar.update(processCount=processCount,force=True)
         cellProcessBar.finish()
         print("Spellcheck Notebook Report Finished.\n")
