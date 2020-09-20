@@ -8,6 +8,8 @@ import subprocess
 import requests
 import os
 import sys
+import nbformat
+import json
 
 # from ErrorBase import ErrorBase
 from Reports.ErrorBase import ErrorBase
@@ -16,7 +18,7 @@ from Reports.ErrorBase import ErrorBase
 #%%
 class ReportBase(object):
 
-    def __init__(self,directory) -> None:
+    def __init__(self,directory,writeLog,logFileName) -> None:
         self.fileList: list = []
         self.reportName = ""
         self.fileType = ""
@@ -27,11 +29,14 @@ class ReportBase(object):
         self.lineNumber = 0
         self.cellNumber = 0
         self.tempFileName = 'deleteme'
+        self.writeLog = writeLog
+        self.logFileName = logFileName
     
     def __repr__(self) -> str:
         report: str = ""
         totalSucessfulInstances: int = len(self.sucessfulInstances)
         totalFailedInstances: int = len(self.failedInstances)
+        totalOperationalErrors: int = len(self.reportOperationErrors)
 
         report += "\n\n===Sucesses===\n\n"
         for instance,status in self.sucessfulInstances.items():
@@ -39,8 +44,12 @@ class ReportBase(object):
         report += "\n\n===FAILURES===\n\n"
         for instance,status in self.failedInstances.items():
             report += f"{instance} : {status}\n"
+        report += "\n\n===OPERATIONAL ERRORS===\n\n"
+        for error in self.reportOperationErrors:
+            for instance,status in error:
+                report += f"{instance} : {status}\n"
         report += "\n\n===SUMMARY===\n\n"
-        report += f"Total Passing Instances : {totalSucessfulInstances} \t Total Failing Instances : {totalFailedInstances}"
+        report += f"Total Passing Instances : {totalSucessfulInstances} \t Total Failing Instances : {totalFailedInstances} \t Total Operational Errors : {totalOperationalErrors}"
         return report
         
     
@@ -58,6 +67,8 @@ class ReportBase(object):
         print(f"Starting {self.reportName} Report:")
         self.populateFileList()
         self.runReport()
+        if self.writeLog:
+            self.writeLogFile()
         print(self.__repr__())
     
     def runReport(self):
@@ -128,5 +139,29 @@ class ReportBase(object):
     def checkForError(self, potentialError: ErrorBase):
         if potentialError.isError:
             self.reportOperationErrors.append(potentialError)
+    
+    def parseNotebook(self,file: Path) -> nbformat.NotebookNode:
+        try:
+            noteText: str = self.readFile(file)
+            json.loads(noteText)
+            parsedNotebook = nbformat.reads(noteText, as_version=4)
+            return parsedNotebook
+        except nbformat.ValidationError as e:
+            print(f"{file} is not a valid ipynb file. Is it empty?\n{e}")
+            self.failedInstances[f"{file.parent}/{file.name}"] = f"{file} is not a valid ipynb file. Is it empty?\n{e}\n{noteText}"
+        except AttributeError as e:
+            print(f"{file} is not a valid ipynb file. Is it empty?\n{e}")
+            self.failedInstances[f"{file.parent}/{file.name}"] = f"{file} is not a valid ipynb file. Is it empty?\n{e}\n{noteText}"
+        except Exception as e:
+            print(f"{file} is not a valid ipynb file. Is it empty?\n{e}")
+            self.failedInstances[f"{file.parent}/{file.name}"] = f"{file} is not a valid ipynb file. Is it empty?\n{e}\n{noteText}"
+    
+    def writeLogFile(self) -> None:
+        if self.logFileName == None:
+            logName: str = self.reportName.replace(' ','')
+            fileName = f'{logName}.log'
+        logFile = open(file=fileName,mode='w')
+        logFile.write(self.__repr__())
+        logFile.close()
 
 # %%

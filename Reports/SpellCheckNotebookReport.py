@@ -23,11 +23,11 @@ from Reports.ReportBase import ReportBase
 class SpellCheckNotebookReport(ReportBase):
 
     # def __init__(self,directory='./',cSpellConfig = './cSpell.json') -> None:
-    def __init__(self,directory,cspellconfig) -> None:
-        super(SpellCheckNotebookReport, self).__init__(directory=directory)
+    def __init__(self,directory,writeLog,logFileName,cSpellConfig) -> None:
+        super(SpellCheckNotebookReport, self).__init__(directory=directory,writeLog=writeLog,logFileName=logFileName)
         self.reportName = "Spellcheck Notebook"
         self.fileType = "ipynb"
-        self.cSpellConfig = cspellconfig
+        self.cSpellConfig = cSpellConfig
         self.run()
 
     def runReport(self) -> None:
@@ -36,17 +36,17 @@ class SpellCheckNotebookReport(ReportBase):
         bar: progressbar.ProgressBar = progressbar.ProgressBar(max_value=len(self.fileList))
         for file in self.fileList:
             self.cellNumber = 0
-            noteText: str = self.readFile(file)
-            try:
-                notebookParsed: object = nbformat.reads(noteText, as_version=4)
+            notebookParsed: object = self.parseNotebook(file=file)
+            if notebookParsed != None:
                 for cell in notebookParsed.cells:
                     if cell.cell_type == 'markdown' or cell.cell_type == 'code':
                         spellingErrors = self.checkSpelling(cell)
                         if len(spellingErrors) > 0:
                             self.failedInstances[f"{file} - {self.cellNumber}"] = spellingErrors
                     self.cellNumber += 1
-            except NotJSONError:
-                print(f'{file} is not in valid json format and therefore cannot be parsed as an .ipynb file. Even if it is an empty file it should containt the minimum metadata to be considered a jupyter notebook. Try saving it with an empty cell in vsCode.')
+            else:
+                # self.failedInstances[f"{file} - {self.cellNumber}"] = "The notebook was unable to be parsed. It is not in valid json format or it is empty."
+                print("The notebook was unable to be parsed. It is not in valid json format or it is empty.")
             bar.update(i)
             i += 1
         print("Spellcheck Notebook Report Finished.\n")
