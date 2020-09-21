@@ -83,7 +83,7 @@ Options:
   --overwrite BOOLEAN    Enabling this will overwrite the notebook with the
                          output of the report.  [default: False]
 
-  --pauseForENV BOOLEAN  Enabling this will pause execution is a missing
+  --pauseForENV BOOLEAN  Enabling this will pause execution if a missing
                          environment variable is found. The user will have a
                          chance to enter the variable and rerun the report.
                          [default: False]

@@ -23,7 +23,7 @@ def commandLineInterface():
 @click.option('--writeLog', type = bool, required = False ,default = False,show_default = True, help='This will write the output to a log file. The default value is "False".')
 @click.option('--logFileName', type = str, required = False,default = None,show_default = True, help='Use this to change the default name of the log file. The default value is <report_name>.log')
 @click.option('--overwrite', type = bool,required = False,default = False,show_default = True, help='Enabling this will overwrite the notebook with the output of the report.')
-@click.option('--pauseForENV', type = bool,required = False,default = False,show_default = True, help='Enabling this will pause execution is a missing environment variable is found. The user will have a chance to enter the variable and rerun the report.')
+@click.option('--pauseForENV', type = bool,required = False,default = False,show_default = True, help='Enabling this will pause execution if a missing environment variable is found. The user will have a chance to enter the variable and rerun the report.')
 def nbReport(directory,writelog,logfilename,overwrite,pauseforenv):
     '''Notebook Report.
 
