@@ -10,6 +10,7 @@ import os
 import sys
 import nbformat
 import json
+import progressbar
 
 # from ErrorBase import ErrorBase
 from Reports.ErrorBase import ErrorBase
@@ -31,6 +32,18 @@ class ReportBase(object):
         self.tempFileName = 'deleteme'
         self.writeLog = writeLog
         self.logFileName = logFileName
+        self.processCount: list = [0,0,0]
+        self.markers: list = [
+        '\x1b[32m█\x1b[39m',  # Done
+        '\x1b[33m#\x1b[39m',  # Processing
+        '\x1b[31m.\x1b[39m',  # ToDo
+    ]
+        self.widgets: list = [
+        f'\x1b[33mStarting...\x1b[39m',
+        progressbar.MultiRangeBar(name='processCount',
+        markers=self.markers)
+        ]
+        self.processBar: progressbar.ProgressBar = progressbar.ProgressBar(widgets=self.widgets, max_value=len(self.fileList),redirect_stdout=True).start()
     
     def __repr__(self) -> str:
         report: str = ""
@@ -66,6 +79,7 @@ class ReportBase(object):
     def run(self):
         print(f"Starting {self.reportName} Report:")
         self.populateFileList()
+        self.processCount = [0,0,len(self.fileList)]
         self.runReport()
         if self.writeLog:
             self.writeLogFile()
@@ -75,6 +89,7 @@ class ReportBase(object):
         pass
     
     def writeTempFile(self,fileName: str = None,cell: object = None, preProcessingCommands: str = None) -> None:
+        self.countSubProcess()
         if fileName == None:
             fileName = self.tempFileName
         try:
@@ -87,6 +102,7 @@ class ReportBase(object):
             self.reportOperationErrors.append(ErrorBase(isError=True,fileObject = Path(fileName),exceptionObject= e))
     
     def deleteTempFile(self, fileName: str = None) -> None:
+        self.countSubProcess()
         if fileName == None:
             fileName = self.tempFileName
         try:
@@ -95,6 +111,7 @@ class ReportBase(object):
             self.reportOperationErrors.append(ErrorBase(isError=True,fileObject = Path(fileName),exceptionObject= e))
 
     def runSubprocess(self,commandName: str, commandArgs: list, fileName: str) -> subprocess.CompletedProcess:
+        self.countSubProcess()
         commandToRun = [commandName] + commandArgs + [fileName]
         completedProcess: subprocess.CompletedProcess = subprocess.run(
             commandToRun, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
@@ -102,6 +119,7 @@ class ReportBase(object):
         return completedProcess
     
     def readFile(self,file: Path, returnList: bool = False):
+        self.startProgressBar(file=file)
         filePath: object = file.resolve()
         self.parentDirectory = file.parent
         try:
@@ -118,6 +136,7 @@ class ReportBase(object):
             print(f"{file.name} a directory and not a file. Should it be named {potentialFileName}? Files in this directory have not been checked. Please rerun the report after fixing the issue.")
     
     def validateFileSystem(self,link: str, tryValidateHTTP: bool = False) -> bool:
+        self.countSubProcess()
         linkPath: Path = self.parentDirectory / link
         if linkPath.exists():
             return True
@@ -127,8 +146,10 @@ class ReportBase(object):
             return False
     
     def validateURLRequest(self,link: str) -> bool:
+        self.countSubProcess()
         try:
-            request: requests.Response = requests.get(link)
+            headers: dict = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+            request: requests.Response = requests.get(url=link,headers=headers)
             if request.status_code == 200:
                 return True
             else:
@@ -142,7 +163,8 @@ class ReportBase(object):
     
     def parseNotebook(self,file: Path) -> nbformat.NotebookNode:
         try:
-            noteText: str = self.readFile(file)
+            noteText: str = self.readFile(file=file)
+            self.countSubProcess()
             json.loads(noteText)
             parsedNotebook = nbformat.reads(noteText, as_version=4)
             return parsedNotebook
@@ -157,11 +179,38 @@ class ReportBase(object):
             self.failedInstances[f"{file.parent}/{file.name}"] = f"{file} is not a valid ipynb file. Is it empty?\n{e}\n{noteText}"
     
     def writeLogFile(self) -> None:
+        self.countSubProcess()
         if self.logFileName == None:
             logName: str = self.reportName.replace(' ','')
             fileName = f'{logName}.log'
         logFile = open(file=fileName,mode='w')
         logFile.write(self.__repr__())
         logFile.close()
+    
+    def startProgressBar(self,file: Path) -> None:
+        self.updateWidgets(file=file)
+        self.resetSubProcessCount()
+        self.processBar = progressbar.ProgressBar(widgets=self.widgets, max_value=len(self.fileList),redirect_stdout=True).start()
 
+    def updateProgressBar(self) -> None:
+        self.processBar.update(processCount=self.processCount,force=True)
+
+    def updateWidgets(self,file: Path) -> None:
+        self.widgets: list = [
+        f'\x1b[33mProcessing ({self.processCount[0]}/{self.processCount[2]} files): {file.name}\x1b[39m',
+        progressbar.MultiRangeBar(name='processCount',
+        markers=self.markers)
+        ]
+    
+    def countProcessComplete(self) -> None:
+        self.processCount[0] += 1
+        self.updateProgressBar()
+    
+    def countSubProcess(self) -> None:
+        self.processCount[1] += 1
+        self.updateProgressBar()
+    
+    def resetSubProcessCount(self) -> None:
+        self.processCount[1] = 0
+        self.updateProgressBar()
 # %%

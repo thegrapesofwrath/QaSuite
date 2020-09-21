@@ -27,12 +27,7 @@ class NotebookReport(ReportBase):
         self.run()
 
     def runReport(self) -> None:
-        i: int = 0
-        bar: progressbar.ProgressBar = progressbar.ProgressBar(max_value=len(self.fileList))
-        bar.update(i)
         for file in self.fileList:
-            # noteText: str = self.readFile(file)
-            # notebookParsed: object = nbformat.reads(noteText, as_version=4)
             notebookParsed: object = self.parseNotebook(file=file)
             executionPreprocessor: object = ExecutePreprocessor(timeout=600, kernel_name=self.kernel,allow_errors=False)
             try:
@@ -51,12 +46,11 @@ class NotebookReport(ReportBase):
                 self.failedInstances[str(file)] = f"FAILED: {e} \n\n===\n\n"
                 print(errorMessage)
             finally:
+                self.countProcessComplete()
                 if self.overwrite == True:
                     with open(str(file), mode='w', encoding='utf-8') as f:
                         nbformat.write(notebookParsed, f)
-            bar.update(i)
-            i += 1
-        print("Notebook Report Finished.\n")
+        print("\nNotebook Report Finished.\n")
 
 #%%
 # notebookReport = NotebookReport(testDirectory,overwrite=False)

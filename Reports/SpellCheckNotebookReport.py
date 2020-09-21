@@ -32,16 +32,7 @@ class SpellCheckNotebookReport(ReportBase):
 
     def runReport(self) -> None:
         self.cellNumber: int = 0
-        fileCount: int = 0
-        processCount = [0,0,len(self.fileList)]
-        markers = [
-        '\x1b[32m█\x1b[39m',  # Done
-        '\x1b[33m#\x1b[39m',  # Processing
-        '\x1b[31m.\x1b[39m',  # ToDo
-    ]
         for file in self.fileList:
-            widgets = [f'\x1b[33mProcessing ({processCount[0]}/{processCount[2]} files): {file.name}\x1b[39m',progressbar.MultiRangeBar(name='processCount',markers=markers)]
-            cellProcessBar: progressbar.ProgressBar = progressbar.ProgressBar(widgets=widgets, max_value=len(self.fileList),redirect_stdout=True).start()
             self.cellNumber = 0
             notebookParsed: object = self.parseNotebook(file=file)
             if notebookParsed != None:
@@ -53,15 +44,10 @@ class SpellCheckNotebookReport(ReportBase):
                         else:
                             self.sucessfulInstances[f"{file} - Cell:{self.cellNumber}"] = 'PASSED'
                     self.cellNumber += 1
-                    processCount[1] = self.cellNumber
-                    cellProcessBar.update(processCount=processCount,force=True)
             else:
                 print("The notebook was unable to be parsed. It is not in valid json format or it is empty.")
-            fileCount += 1
-            processCount[0] = fileCount
-            cellProcessBar.update(processCount=processCount,force=True)
-        cellProcessBar.finish()
-        print("Spellcheck Notebook Report Finished.\n")
+            self.countProcessComplete()
+        print("\nSpellcheck Notebook Report Finished.\n")
     
     def checkSpelling(self,cell: object) -> list:
         self.writeTempFile(cell=cell)
@@ -73,6 +59,7 @@ class SpellCheckNotebookReport(ReportBase):
         return self.cleanCspell(executionObject)
 
     def cleanCspell(self,executionObject: subprocess.CompletedProcess) -> list:
+        self.countSubProcess()
         spellingErrors: list = []
         stdOut: str = str(executionObject.stdout)
         outputList: list = stdOut.split('\\n')

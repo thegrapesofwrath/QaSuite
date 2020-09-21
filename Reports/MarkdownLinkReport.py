@@ -29,26 +29,24 @@ class MarkdownLinkReport(ReportBase):
 
     def runReport(self) -> None:
         self.lineNumber: int = 0
-        i: int = 0
-        bar: progressbar.ProgressBar = progressbar.ProgressBar(max_value=len(self.fileList))
-        bar.update(i)
         for file in self.fileList:
             self.lineNumber = 0
             fileText: list = self.readFile(file,returnList=True)
             results: ErrorBase = self.checkText(file,fileText,self.lineNumber)
             if results.isError:
                 print(f"Markdown Link Reporter failed for {results.fileObject} at {results.lineNumber}: {results.exceptionObject}")
-            bar.update(i)
-            i += 1
-        print("Markdown Link Check Finished.\n")
+            self.countProcessComplete()
+        print("\nMarkdown Link Check Finished.\n")
 
     def getLink(self,line: str, matchingRegex: object) -> str:
+        self.countSubProcess()
         link: object = matchingRegex.search(line)
         link: str = link.group('link')
         link: str = link[1:len(link)-1]
         return link
     
     def checkText(self,file: object, fileText: list, lineNumber: int) -> ErrorBase:
+        self.countSubProcess()
         try:
             for line in fileText:    
                 if self.markdownLinkMatch.search(line):
