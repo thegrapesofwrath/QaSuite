@@ -40,10 +40,17 @@ Markdown Link Checker.
 qaSuite mdlinkcheck --help
 
 Options:
-  --directory TEXT  The directory to run the link checker. It will recurse and
-                    check all markdown files in subdirectories.
+  --directory TEXT    The directory to run the notebook report. It will
+                      recurse and check all jupyter notebooks in
+                      subdirectories.  [default: ./]
 
-  --help            Show this message and exit.
+  --writeLog BOOLEAN  This will write the output to a log file. The default
+                      value is "False".  [default: False]
+
+  --logFileName TEXT  Use this to change the default name of the log file. The
+                      default value is <report_name>.log
+
+  --help              Show this message and exit.
 
 ```
 
@@ -63,13 +70,25 @@ Options:
 qaSuite nbreport --help
 
 Options:
-  --directory TEXT  The directory to run the notebook report. It will recurse
-                    and check all jupyter notebooks in subdirectories.
+  --directory TEXT       The directory to run the notebook report. It will
+                         recurse and check all jupyter notebooks in
+                         subdirectories.  [default: ./]
 
-  --overwrite TEXT  Enabling this will overwrite the notebook with the output
-                    of the report.
+  --writeLog BOOLEAN     This will write the output to a log file. The default
+                         value is "False".  [default: False]
 
-  --help            Show this message and exit.
+  --logFileName TEXT     Use this to change the default name of the log file.
+                         The default value is <report_name>.log
+
+  --overwrite BOOLEAN    Enabling this will overwrite the notebook with the
+                         output of the report.  [default: False]
+
+  --pauseForENV BOOLEAN  Enabling this will pause execution is a missing
+                         environment variable is found. The user will have a
+                         chance to enter the variable and rerun the report.
+                         [default: False]
+
+  --help                 Show this message and exit.
 ```
 
 # Notebook Spell Check Report
@@ -79,12 +98,20 @@ Options:
   This set of words is printed at the very end. It is recommended to
   run this code per unit and update the unit-level spelling dictionary.
 
+> **Note**: This report requires that cSpell be installed on your system. Please follow the [installation instructions](https://www.npmjs.com/package/cspell) on the cSpell page if you need to install it.
 ## nbspellcheck Help
 
 ```shell
 Options:
-  --directory TEXT     The directory to run the spell checker. It will recurse
-                       and check all .ipynb files in subdirectories.
+  --directory TEXT     The directory to run the notebook report. It will
+                       recurse and check all jupyter notebooks in
+                       subdirectories.  [default: ./]
+
+  --writeLog BOOLEAN   This will write the output to a log file. The default
+                       value is "False".  [default: False]
+
+  --logFileName TEXT   Use this to change the default name of the log file.
+                       The default value is <report_name>.log
 
   --cSpellConfig TEXT  Add configuration options to cSpell in this file. The
                        list of ignore words will be included in this file.
@@ -116,7 +143,7 @@ Options:
                        The default config file is expected to be
                        'cSpell.json'. You may however pass in another config
                        file as long as it's valid json and conforms with the
-                       cSpell config json format.
+                       cSpell config json format.  [default: ./cSpell.json]
 
   --help               Show this message and exit.
 ```
