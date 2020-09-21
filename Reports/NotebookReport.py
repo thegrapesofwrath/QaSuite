@@ -18,8 +18,8 @@ from Reports.ReportBase import ReportBase
 #%%
 class NotebookReport(ReportBase):
 
-    def __init__(self,directory, overwrite) -> None:
-        super(NotebookReport, self).__init__(directory=directory)
+    def __init__(self,directory,writeLog,logFileName,overwrite) -> None:
+        super(NotebookReport, self).__init__(directory=directory,writeLog=writeLog,logFileName=logFileName)
         self.overwrite = overwrite
         self.kernel = 'python3'
         self.reportName = "Notebook"
@@ -27,26 +27,30 @@ class NotebookReport(ReportBase):
         self.run()
 
     def runReport(self) -> None:
-        i: int = 0
-        bar: progressbar.ProgressBar = progressbar.ProgressBar(max_value=len(self.fileList))
         for file in self.fileList:
-            noteText: str = self.readFile(file)
-            notebookParsed: object = nbformat.reads(noteText, as_version=4)
+            notebookParsed: object = self.parseNotebook(file=file)
             executionPreprocessor: object = ExecutePreprocessor(timeout=600, kernel_name=self.kernel,allow_errors=False)
             try:
                 executionPreprocessor.preprocess(notebookParsed, {'metadata': {'path': str(file.parent)}})
                 self.sucessfulInstances[str(file)] = 'PASS'
             except CellExecutionError as e:
-                errorMessage = f'Error executing the notebook {str(file)}.\n\n'
+                errorMessage = f'\nError executing the notebook {str(file)} in one of the cells.\n\n'
+                self.failedInstances[str(file)] = f"FAILED: {e} \n\n===\n\n"
+                print(errorMessage)
+            except AttributeError as e:
+                errorMessage = f'\nError executing the notebook {str(file)}. It is possibly not valid json.\n\n'
+                self.failedInstances[str(file)] = f"FAILED: {e} \n\n===\n\n"
+                print(errorMessage)
+            except Exception as e:
+                errorMessage = f'\nError executing the notebook {str(file)}.\n\n'
                 self.failedInstances[str(file)] = f"FAILED: {e} \n\n===\n\n"
                 print(errorMessage)
             finally:
+                self.countProcessComplete()
                 if self.overwrite == True:
                     with open(str(file), mode='w', encoding='utf-8') as f:
                         nbformat.write(notebookParsed, f)
-            bar.update(i)
-            i += 1
-        print("Notebook Report Finished.\n")
+        print("\nNotebook Report Finished.\n")
 
 #%%
 # notebookReport = NotebookReport(testDirectory,overwrite=False)

@@ -8,6 +8,7 @@ run this code per unit and update the unit-level spelling dictionary.
 #%%
 import subprocess
 import nbformat
+from nbformat.reader import NotJSONError
 import progressbar
 from pathlib import Path
 # from ReportBase import ReportBase
@@ -22,30 +23,31 @@ from Reports.ReportBase import ReportBase
 class SpellCheckNotebookReport(ReportBase):
 
     # def __init__(self,directory='./',cSpellConfig = './cSpell.json') -> None:
-    def __init__(self,directory,cspellconfig) -> None:
-        super(SpellCheckNotebookReport, self).__init__(directory=directory)
+    def __init__(self,directory,writeLog,logFileName,cSpellConfig) -> None:
+        super(SpellCheckNotebookReport, self).__init__(directory=directory,writeLog=writeLog,logFileName=logFileName)
         self.reportName = "Spellcheck Notebook"
         self.fileType = "ipynb"
-        self.cSpellConfig = cspellconfig
+        self.cSpellConfig = cSpellConfig
         self.run()
 
     def runReport(self) -> None:
         self.cellNumber: int = 0
-        i: int = 0
-        bar: progressbar.ProgressBar = progressbar.ProgressBar(max_value=len(self.fileList))
         for file in self.fileList:
             self.cellNumber = 0
-            noteText: str = self.readFile(file)
-            notebookParsed: object = nbformat.reads(noteText, as_version=4)
-            for cell in notebookParsed.cells:
-                if cell.cell_type == 'markdown' or cell.cell_type == 'code':
-                    spellingErrors = self.checkSpelling(cell)
-                    if len(spellingErrors) > 0:
-                        self.failedInstances[f"{file} - {self.cellNumber}"] = spellingErrors
-                self.cellNumber += 1
-            bar.update(i)
-            i += 1
-        print("Spellcheck Notebook Report Finished.\n")
+            notebookParsed: object = self.parseNotebook(file=file)
+            if notebookParsed != None:
+                for cell in notebookParsed.cells:
+                    if cell.cell_type == 'markdown' or cell.cell_type == 'code':
+                        spellingErrors = self.checkSpelling(cell)
+                        if len(spellingErrors) > 0:
+                            self.failedInstances[f"{file} - Cell:{self.cellNumber}"] = spellingErrors
+                        else:
+                            self.sucessfulInstances[f"{file} - Cell:{self.cellNumber}"] = 'PASSED'
+                    self.cellNumber += 1
+            else:
+                print("The notebook was unable to be parsed. It is not in valid json format or it is empty.")
+            self.countProcessComplete()
+        print("\nSpellcheck Notebook Report Finished.\n")
     
     def checkSpelling(self,cell: object) -> list:
         self.writeTempFile(cell=cell)
@@ -57,6 +59,7 @@ class SpellCheckNotebookReport(ReportBase):
         return self.cleanCspell(executionObject)
 
     def cleanCspell(self,executionObject: subprocess.CompletedProcess) -> list:
+        self.countSubProcess()
         spellingErrors: list = []
         stdOut: str = str(executionObject.stdout)
         outputList: list = stdOut.split('\\n')

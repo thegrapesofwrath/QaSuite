@@ -3,3 +3,5 @@ venv/
 bugList_09022020_JeremyDavid.txt
 utils/
 .vscode/
+*.log
+progressBarExamples.py
