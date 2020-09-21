@@ -154,8 +154,8 @@ class ReportBase(object):
                 return True
             else:
                 return False
-        except Exception:
-            pass
+        except Exception as e:
+            self.reportOperationErrors.append(ErrorBase(isError=True,fileObject = link,exceptionObject= e))
     
     def checkForError(self, potentialError: ErrorBase):
         if potentialError.isError:
@@ -183,9 +183,13 @@ class ReportBase(object):
         if self.logFileName == None:
             logName: str = self.reportName.replace(' ','')
             fileName = f'{logName}.log'
-        logFile = open(file=fileName,mode='w')
-        logFile.write(self.__repr__())
-        logFile.close()
+        try:
+            logFile = open(file=fileName,mode='w')
+            logFile.write(self.__repr__())
+            logFile.close()
+        except Exception as e:
+            self.reportOperationErrors.append(ErrorBase(isError=True,fileObject = Path(fileName),exceptionObject= e))
+
     
     def startProgressBar(self,file: Path) -> None:
         self.updateWidgets(file=file)
