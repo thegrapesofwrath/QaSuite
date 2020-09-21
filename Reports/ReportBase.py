@@ -77,7 +77,7 @@ class ReportBase(object):
     
     def run(self):
         try:
-            print(f"Starting {self.reportName} Report:")
+            print(f"{self.reportName} Report:")
             self.populateFileList()
             self.processCount = [0,0,len(self.fileList)]
             self.runReport()
