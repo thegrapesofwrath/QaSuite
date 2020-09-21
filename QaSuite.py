@@ -22,14 +22,15 @@ def commandLineInterface():
 @click.option('--directory',type = str,required = False, default = './',show_default = True, help='The directory to run the notebook report. It will recurse and check all jupyter notebooks in subdirectories.')
 @click.option('--writeLog', type = bool, required = False ,default = False,show_default = True, help='This will write the output to a log file. The default value is "False".')
 @click.option('--logFileName', type = str, required = False,default = None,show_default = True, help='Use this to change the default name of the log file. The default value is <report_name>.log')
-@click.option('--overwrite', type = str,required = False,default = False,show_default = True, help='Enabling this will overwrite the notebook with the output of the report.')
-def nbReport(directory,writelog,logfilename,overwrite):
+@click.option('--overwrite', type = bool,required = False,default = False,show_default = True, help='Enabling this will overwrite the notebook with the output of the report.')
+@click.option('--pauseForENV', type = bool,required = False,default = False,show_default = True, help='Enabling this will pause execution is a missing environment variable is found. The user will have a chance to enter the variable and rerun the report.')
+def nbReport(directory,writelog,logfilename,overwrite,pauseforenv):
     '''Notebook Report.
 
     The Notebook Report will recurse a directory and check all .ipynb files using the nbconvert ExecutionPreprocessor. 
     It will save the output to the same file name and will list all failing notebooks as well as their cells that failed with the associated stack trace.
     '''
-    NotebookReport(directory=directory,writeLog=writelog,logFileName=logfilename,overwrite=overwrite)
+    NotebookReport(directory=directory,writeLog=writelog,logFileName=logfilename,overwrite=overwrite,pauseForENV=pauseforenv)
 
 commandLineInterface.add_command(nbReport)
 
@@ -87,3 +88,5 @@ commandLineInterface.add_command(nbSpellCheck)
 #%%
 if __name__ == "__main__":
     commandLineInterface()
+    # testDir = '/Users/shartley/Documents/trilogyCurriculum/FinTech-Lesson-Plans//01-Lesson-Plans/05-APIs/3/Activities/04-Stu_Three_Stock_Monte/Solved'
+    # NotebookReport(directory=testDir,pauseForENV=True,writeLog=False,overwrite=False,logFileName=None)
