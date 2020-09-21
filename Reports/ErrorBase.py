@@ -8,3 +8,5 @@ class ErrorBase():
         self.fileObject = fileObject
         self.lineNumber = lineNumber
         self.exceptionObject = exceptionObject
+
+

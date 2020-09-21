@@ -59,8 +59,7 @@ class ReportBase(object):
             report += f"{instance} : {status}\n"
         report += "\n\n===OPERATIONAL ERRORS===\n\n"
         for error in self.reportOperationErrors:
-            for instance,status in error:
-                report += f"{instance} : {status}\n"
+            report += f"{error.fileObject} - {error.lineNumber} : {error.exceptionObject}\n"
         report += "\n\n===SUMMARY===\n\n"
         report += f"Total Passing Instances : {totalSucessfulInstances} \t Total Failing Instances : {totalFailedInstances} \t Total Operational Errors : {totalOperationalErrors}"
         return report
@@ -77,14 +76,21 @@ class ReportBase(object):
             sys.exit(1)
     
     def run(self):
-        print(f"Starting {self.reportName} Report:")
-        self.populateFileList()
-        self.processCount = [0,0,len(self.fileList)]
-        self.runReport()
-        if self.writeLog:
-            self.writeLogFile()
-        print(self.__repr__())
-    
+        try:
+            print(f"Starting {self.reportName} Report:")
+            self.populateFileList()
+            self.processCount = [0,0,len(self.fileList)]
+            self.runReport()
+            if self.writeLog:
+                self.writeLogFile()
+            print(self.__repr__())
+        except KeyboardInterrupt:
+            print("\nKeyboard Interrupt\n")
+            print(self.__repr__())
+            print("\nKeyboard Interrupt\n")
+        except Exception as e:
+            print(f"Report run failed: {e}")
+
     def runReport(self):
         pass
     
@@ -155,7 +161,8 @@ class ReportBase(object):
             else:
                 return False
         except Exception as e:
-            self.reportOperationErrors.append(ErrorBase(isError=True,fileObject = link,exceptionObject= e))
+            # self.reportOperationErrors.append(ErrorBase(isError=True,fileObject = link,exceptionObject= e))
+            pass
     
     def checkForError(self, potentialError: ErrorBase):
         if potentialError.isError:
