@@ -108,7 +108,7 @@ class NotebookDiffReport(ReportBase):
         pass
 
     def gitDiffFiles(self) -> None:
-        executionObject: subprocess.CompletedProcess = self.runSubprocess(commandName='git',commandArgs=['diff','--diff-filter=d','--name-only','master'],fileName=None)
+        executionObject: subprocess.CompletedProcess = self.runSubprocess(commandName='git',commandArgs=['diff','--diff-filter=d','master'],fileName=None)
         # return executionObject
         pass
 
